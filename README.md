@@ -21,16 +21,25 @@
 
 ## What This Does
 
-<!-- Three or four sentences. Which corpus you picked, and the kinds of
-     questions your system answers. Write it for someone who has never seen
-     this repo.
-
-     Milestone 5. -->
+This system answers practical travel questions about the towns and walking
+routes in the `city_guides` corpus. It retrieves relevant guide sections using
+local embeddings, checks their relevance before answering, and then asks the
+generation model to use only those sections. Answers cover transport,
+accessibility, food, accommodation, seasonal conditions, and things to see,
+with the source filenames shown alongside each answer.
 
 ## Chunking Strategy
 
-**Chunk size:**
-**Overlap:**
+**Chunk size:** 800 characters maximum, while preserving each Markdown `##` section
+**Overlap:** 0 characters
+
+I picked `city_guides` because its 14 documents are long guides organized into
+labelled sections such as Getting there, Eat and drink, and When to go. The
+starter's fixed windows produced 51 chunks and cut through words and sentences;
+the longest complete section was 711 characters, so an 800-character limit is
+large enough to keep every section intact. I used no overlap because each chunk
+repeats the guide title and includes its own section heading, which supplies the
+context without duplicating neighbouring sections.
 
 <!-- What about YOUR documents made you pick these numbers? Short posts and
      long sectioned guides don't want the same chunking, and "800 seemed
@@ -53,29 +62,53 @@
 
      Milestone 3. -->
 
-**Chunk 1** — source: `` — produced by: ``
+**Chunk 1** — source: `guide_accessibility.md#0` — produced by: `chunker.py::split_documents`
 
 ```
+# Getting around the region with limited mobility
+
+An honest assessment rather than a promotional one. Some of these places are
+difficult and it is better to know in advance.
 ```
 
-**Chunk 2** — source: `` — produced by: ``
+**Chunk 2** — source: `guide_corry_vale.md#5` — produced by: `chunker.py::split_documents`
 
 ```
+# Corry Vale
+
+## Where to stay
+
+Perhaps thirty beds in the entire valley, spread across two pubs and a handful of farmhouse rooms. In summer these are booked months ahead. Camping is permitted on two marked fields and nowhere else.
 ```
 
-**Chunk 3** — source: `` — produced by: ``
+**Chunk 3** — source: `guide_givens_mill.md#2` — produced by: `chunker.py::split_documents`
 
 ```
+# Givens Mill
+
+## Getting around
+
+Everything is on one street along the river. The mill is at one end and the church at the other, eight minutes apart. The riverside path continues in both directions for as far as you want to walk.
 ```
 
-**Chunk 4** — source: `` — produced by: ``
+**Chunk 4** — source: `guide_kestrelford.md#4` — produced by: `chunker.py::split_documents`
 
 ```
+# Kestrelford
+
+## What to see
+
+The market square on a Saturday morning is the main event and has run continuously since the 1400s. The parish church has a 13th-century tower you can climb for £2. The old trackbed walk runs six miles to the next village along an easy gradient and is the best half-day here.
 ```
 
-**Chunk 5** — source: `` — produced by: ``
+**Chunk 5** — source: `guide_pellew_sands.md#6` — produced by: `chunker.py::split_documents`
 
 ```
+# Pellew Sands
+
+## When to go
+
+June and September for the beach without the crowds. July and August are busy and the town is at its most itself, for better and worse. Winter is bleak, largely closed, and has a following among people who like that sort of thing.
 ```
 
 ## Sample Answer
@@ -83,12 +116,17 @@
 <!-- One complete question and answer, pasted as text, with the source line
      visible. Milestone 4. -->
 
-**Question:**
+**Question:** Where should I eat in Pellew Sands if I want better food at a lower price?
 
-**Answer:**
+**Answer:** You should eat on Marine Terrace, which is one street back from the
+seafront. The cooking there is better and costs roughly half the seafront price.
 
 ```
+Sources retrieved: guide_accessibility.md, guide_eating.md, guide_pellew_sands.md
 ```
+
+The answer stayed within the retrieved excerpts and named the files it used, so
+the existing `GROUNDING_INSTRUCTION` was strict enough for this corpus.
 
 **My relevance cutoff:**
 
@@ -101,9 +139,27 @@
 
      Milestone 4. -->
 
+**Top-k:** 5
+
+**Cutoff:** 0.6
+
+The in-scope questions had best distances from 0.3524 to 0.5394. The
+out-of-scope questions ranged from 0.8026 to 0.9753, leaving a clear gap
+between 0.5394 and 0.8026. I kept the starter cutoff of 0.6 because it passes
+all five in-scope questions while refusing all five out-of-scope questions.
+
 | Question | In corpus? | Best distance |
 |---|---|---|
-|  |  |  |
+| How do I get to Pellew Sands, and where can I park cheaply? | Yes | 0.3987 |
+| Which towns in the region are most accessible for someone with limited mobility? | Yes | 0.5305 |
+| What are the best easy walking routes, and how long are they? | Yes | 0.4676 |
+| Where should I eat in Pellew Sands if I want better food at a lower price? | Yes | 0.3524 |
+| What should I know about traveling by bus or train on Sundays? | Yes | 0.5394 |
+| What is the capital of Mongolia? | No | 0.8026 |
+| How do I change the oil in a diesel engine? | No | 0.8881 |
+| Who won the 1994 World Cup? | No | 0.9753 |
+| What is the recommended dosage of ibuprofen for a headache? | No | 0.8350 |
+| How do I write a for loop in Rust? | No | 0.8365 |
 
 ## How I Used AI
 
@@ -116,9 +172,16 @@
 
      Milestone 5. -->
 
-**1.**
+**1.** I asked AI to suggest a chunking strategy after I measured that the
+starter made 51 chunks from 14 city-guide documents and cut through labelled
+sections. The first suggestion used fixed-size assumptions, so I checked the
+actual section lengths myself and changed `chunker.py` to preserve each `##`
+section, repeat the guide title, and use zero overlap.
 
-**2.**
+**2.** I asked AI to diagnose the `KeyError: '_type'` raised by Chroma during
+indexing. It identified stale persisted Chroma metadata and suggested resetting
+the local database; after the reset, indexing succeeded, so I kept that repair
+as an environment fix rather than changing the retrieval code.
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
