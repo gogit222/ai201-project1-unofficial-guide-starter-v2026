@@ -19,22 +19,31 @@ pipeline earns credit; *"80% seemed reasonable"* does not.
 
 ## 1. Retrieved chunks contain the answer
 
-For at least 4 of my 5 test questions, the retrieved chunks include one that
-contains the answer.
+For at least 4 of my 5 test questions, the top five retrieved chunks include
+one containing the question's `expects` phrase from `questions.py`.
 
 **Why this target:**
-<!-- e.g. "One of my questions is about a topic only two documents mention, so
-     I expect that one to be hard." -->
+
+The city guides are split into separate town and topic documents, so the
+answer-bearing passage should be near the top even when several guides share
+words such as transport, food, or walking. Four of five allows for one
+question whose topic may have weaker vocabulary overlap, while three would
+not show dependable retrieval.
 
 ---
 
 ## 2. Every answer names a source
 
-Every answer the system produces names at least one source document.
+For all 5 in-scope questions, the output includes a `Sources retrieved:` line
+followed by at least one filename from the retrieved chunks.
 
 **Why this target:**
-<!-- Why all five and not four? What about your setup makes that achievable —
-     or what would have to go wrong for it not to be? -->
+
+The command-line pipeline already returns the source filenames with every
+successful answer, so this is achievable unless the answer path loses the
+retrieval results or the source metadata. I chose all five because source
+metadata is attached during retrieval, so allowing fewer would hide a
+preventable attribution failure.
 
 ---
 
@@ -50,8 +59,12 @@ in at least 4 of 5 tries.
      just keep five of them, or the "4 of 5" above has nothing to be 4 of. -->
 
 **Why this target:**
-<!-- What did your distances look like when you set the cutoff in Milestone 4?
-     Was there a clean gap, or did the two groups overlap? -->
+
+The out-of-scope questions concern unrelated subjects, while the index only
+contains regional travel guides, so at least 4 of 5 should fall beyond the
+relevance cutoff and be refused without a model answer. Four is a useful
+minimum because one unrelated question may still have an accidental wording
+match, while a lower target would tolerate too many false answers.
 
 ---
 
@@ -69,9 +82,17 @@ in at least 4 of 5 tries.
        - "No chunk is shorter than 200 characters, since anything below that
           in my corpus turned out to be a heading with no content under it." -->
 
+When I run `python app.py chunks -n 5`, at least 4 of the 5 printed chunks read
+as complete sections, with no sentence cut in half at either end.
+
 
 
 **Why this target:**
+
+The city guide documents are short, self-contained sections, so a chunk that
+ends mid-sentence would lose useful travel details and make the answer harder
+to ground in the source. Four of five recognizes that a sampled boundary can
+be imperfect without accepting frequent broken chunks.
 
 
 
@@ -87,9 +108,18 @@ in at least 4 of 5 tries.
      present — anything, as long as it names a number or an observable
      outcome. -->
 
+For at least 4 of my 5 test questions, the generated answer contains the
+question's `expects` phrase from `questions.py`.
+
 
 
 **Why this target:**
+
+The expected phrases identify concrete places or travel details, so this tests
+whether generation uses the retrieved evidence rather than merely returning a
+non-empty or generally plausible answer. Four of five leaves room for one
+correctly paraphrased answer that does not use the exact expected phrase,
+while a lower score would not demonstrate dependable grounding.
 
 
 
