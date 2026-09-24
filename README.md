@@ -210,15 +210,57 @@ as an environment fix rather than changing the retrieval code.
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 0/5 | 0/5 | 0/5 | MISSED |
+| 2. Every answer names a source | 5 of 5 | 0/5 | 0/5 | 0/5 | MISSED |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
 | 4. | | | | | |
 | 5. | | | | | |
 
 <!-- Underneath, paste the REAL output for each criterion from one of your
      runs — the actual text your system produced, not a description of it.
      Name the file and function that produced it. -->
+
+Produced by `run_eval.py::main` and `run_eval.py::check_out_of_scope` in
+`results/run_2026-09-23_2104_before.md`.
+
+### Criterion 1 — retrieved chunk contains the answer (run 1)
+
+```text
+How do I get to Pellew Sands, and where can I park cheaply? — run 1
+I don't have enough information about that.
+
+Which towns in the region are most accessible for someone with limited mobility? — run 1
+I don't have enough information about that.
+
+What are the best easy walking routes, and how long are they? — run 1
+I don't have enough information about that.
+
+Where should I eat in Pellew Sands if I want better food at a lower price? — run 1
+I don't have enough information about that.
+
+What should I know about traveling by bus or train on Sundays? — run 1
+I don't have enough information about that.
+```
+
+### Criterion 2 — every answer names a source (run 1)
+
+```text
+How do I get to Pellew Sands, and where can I park cheaply? — run 1
+I don't have enough information about that.
+```
+
+No answer in this run named any source file, so the source requirement failed
+for all five questions.
+
+### Criterion 3 — gate stops out-of-corpus questions (single deterministic pass)
+
+```text
+What is the capital of Mongolia? | 0.860 | refused
+How do I change the oil in a diesel engine? | 0.966 | refused
+Who won the 1994 World Cup? | 0.842 | refused
+What is the recommended dosage of ibuprofen for a headache? | 0.970 | refused
+How do I write a for loop in Rust? | 0.865 | refused
+```
 
 ## Verdicts
 
