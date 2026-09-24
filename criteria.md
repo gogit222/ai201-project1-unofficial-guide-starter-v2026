@@ -30,6 +30,15 @@ words such as transport, food, or walking. Four of five allows for one
 question whose topic may have weaker vocabulary overlap, while three would
 not show dependable retrieval.
 
+> **Revised in unit 2:** For at least 4 of 5 questions, the top three
+> retrieved results contain the answer phrase from `questions.py`.
+>
+> **Why revised:** I could not judge "retrieved chunks contain the answer"
+> consistently across runs because the same question sometimes looked
+> answer-bearing when I checked for the underlying fact and sometimes when I
+> checked for the exact phrase. The revised version is concrete and repeatable
+> from the retrieval output alone, so it is something I can measure reliably.
+
 ---
 
 ## 2. Every answer names a source

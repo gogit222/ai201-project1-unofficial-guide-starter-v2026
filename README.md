@@ -275,9 +275,9 @@ How do I write a for loop in Rust? | 0.865 | refused
 
 | # | Criterion | Verdict | How I decided |
 |---|---|---|---|
-| 1 |  |  |  |
-| 2 |  |  |  |
-| 3 |  |  |  |
+| 1 | Retrieved chunk contains the answer | MISSED | The target was 4 of 5, but all three runs produced 0/5 answers that actually contained the answer in the retrieved material, so the target never held. |
+| 2 | Every answer names a source | MISSED | The target was 5 of 5, but every answer in every run said only "I don't have enough information about that." and named no source file. |
+| 3 | Gate stops out-of-corpus questions | MET | The target was 4 of 5 and all five out-of-scope questions were refused by the gate in the deterministic pass, exceeding the target. |
 | 4 |  |  |  |
 | 5 |  |  |  |
 
