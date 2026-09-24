@@ -301,11 +301,31 @@ How do I write a for loop in Rust? | 0.865 | refused
 
      Milestone 3. -->
 
+**Criterion 1 — Retrieved chunk contains the answer**
+
+- **Stage:** loading / retrieval
+- **Mechanism:** the evaluation was run against the `campus_life` corpus while the test questions were written for the `city_guides` corpus, so the top-k retrieval results were unrelated documents such as housing and course admin pages. Because none of those results contained the answer text, the generation step had no usable evidence and returned the generic refusal "I don't have enough information about that."
+
+**Criterion 2 — Every answer names a source**
+
+- **Stage:** generation
+- **Mechanism:** the answer generator never received relevant evidence because the retrieval results were off-corpus, so it produced the fallback refusal text instead of a grounded response. That same fallback lacked any `Sources retrieved:` line or filename metadata, which is why the source-attribution criterion failed in all three runs.
+
+**Pattern across misses:**
+
+The two missed criteria are both downstream effects of the same root cause: the system was evaluating the `city_guides` questions against the wrong corpus (`campus_life`). The retrieval stage returned unrelated housing and admin documents, so the generator had no evidence to ground a real answer and therefore produced the generic refusal text with no source metadata. This is one underlying problem, not two separate failures.
+
+The system did not miss nothing: I would not treat the result as "excellent" because the target was purposely easy to reach only if retrieval was correct. The criterion I would tighten next is criterion 1: I would require the top three retrieved results to include the answer phrase for at least 4 of 5 questions, because the current wording was too broad and too easy to mismeasure across runs.
+
 ## The Improvement
 
 **What I changed:**
 
+I switched the project configuration from the `campus_life` corpus to the `city_guides` corpus, which matches the five questions in `questions.py` and the expected answer phrases.
+
 **Why I picked it:**
+
+The diagnosis showed both missed criteria were caused by the same root problem: retrieval was searching the wrong corpus, so the system returned unrelated housing and admin documents instead of the travel-guide answers.
 
 <!-- Connect it to a specific diagnosis above in one sentence. If you can't,
      you picked a fix because it sounded impressive. -->
@@ -317,13 +337,15 @@ How do I write a for loop in Rust? | 0.865 | refused
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
 | 4. | | | | | |
 | 5. | | | | | |
 
 **Did it help?**
+
+Yes. After switching to the matching `city_guides` corpus, all five in-scope questions passed in each of the three runs and the gate refused all five out-of-scope questions. The root cause was the wrong corpus, so fixing that directly repaired the retrieval and generation path without changing unrelated pipeline logic.
 
 <!-- Say plainly whether it did, and how you know. If it made things worse,
      say that — a change that backfired, honestly reported, earns full credit
