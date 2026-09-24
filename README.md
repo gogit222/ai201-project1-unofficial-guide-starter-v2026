@@ -183,6 +183,14 @@ indexing. It identified stale persisted Chroma metadata and suggested resetting
 the local database; after the reset, indexing succeeded, so I kept that repair
 as an environment fix rather than changing the retrieval code.
 
+**3.** I asked AI to help interpret the failure pattern in unit 2 after all five
+in-scope questions were refused by the gate and the answers were generic
+fallbacks. It pointed out that the questions were written for the `city_guides`
+corpus but the project was still configured to use `campus_life`, so retrieval
+was pulling unrelated documents. I changed the corpus setting to `city_guides`
+and reran the evaluation; the pass/fail pattern matched the real issue rather
+than a model-quality problem.
+
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
      claims earns nothing.
@@ -364,9 +372,16 @@ Yes. After switching to the matching `city_guides` corpus, all five in-scope que
 
      Milestone 5. -->
 
+None of the measured criteria are still broken after the corpus fix. In the after-run, criteria 1, 2, and 3 all met their targets in all three runs: 5/5 for the in-scope retrieval and source checks, and 5/5 gate refusals for the out-of-scope questions. The root cause was the wrong corpus, and fixing the corpus resolved the retrieval and generation failures that caused the earlier misses.
+
+Criteria 4 and 5 are still blank in this project log because I have not written or measured them yet; they are placeholders, not active failures. I stopped here because the assignment's core evaluation criteria were fixed and verified, and I did not want to invent a new problem to solve. If I continued beyond this point, I would next tighten the retrieval criterion to make the check more precise, but I would not claim there is still a broken requirement in the measured set.
+
 ## What I'd Do Differently
 
 <!-- Knowing what you know now — which of your five criteria would you write
      differently, and why?
 
      Milestone 5. -->
+
+I would rewrite criterion 1 to be more precise: instead of judging whether the retrieved chunks "contain the answer," I would define it as "for at least 4 of 5 questions, the top three retrieved results contain the answer phrase from `questions.py`." That is easier to measure consistently across runs and better matches the actual retrieval behavior that the system can verify without relying on a subjective judgment of what counts as relevant.
+
